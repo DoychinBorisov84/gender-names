@@ -5,6 +5,9 @@ error_reporting(E_ALL);
 
 include_once 'config.php';
 
+$request_for_data = $_POST['load_db_data'];
+echo '<tr>Data from find.php</tr>'; exit;
+
 $names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
