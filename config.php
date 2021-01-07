@@ -37,6 +37,10 @@ define('DB_NAMES_LIMIT', 'people_limit_50');
  */
 define('DB_FILTERED_FIRSTNAMES', 'people_name_gender');
 
+function print_pr($arr){
+ echo '<pre>'.print_r($arr, true).'</pre>';
+}
+
 try {
     $connection = new PDO("mysql:host=localhost;dbname=people_names", DB_USER, DB_PASSWORD);
 } catch (PDOException $ex) {

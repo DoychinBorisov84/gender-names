@@ -9,20 +9,19 @@ $names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
 $sql = "SELECT firstName FROM $names_limited";
-$result = $connection->query($sql);
+$records_db = $connection->query($sql);
 
-$api_endpoint = 'https://api.genderize.io?name=';
 $filtered_names = [];
-foreach ($result as $row) {
+// Filter the db-data(name into words) vs the api-response for the probability, save db 
+foreach ($records_db as $row) {
   $name_chunks = explode(' ', $row['firstName']);
-  // var_dump($name_chunks); exit;
-  foreach ($name_chunks as $chunk) {
-    # code...
-    $data = json_decode(file_get_contents($api_endpoint. urlencode($chunk)));
-    // var_dump($data); exit;
 
+  // Each db-row as chunk
+  foreach ($name_chunks as $chunk) {
+    $data = json_decode(curl_req($chunk));
+    
+    // Push to the arr, only high probability records
     if($data->gender != NULL && $data->probability >= 0.95){
-      // $filtered_names[] = $row['firstName'];
       array_push($filtered_names, array(
         'name' => $data->name,
         'gender' => $data->gender,
@@ -30,26 +29,47 @@ foreach ($result as $row) {
         'count' => $data->count)
       );
     }
-
   }
 }
 
-foreach ($filtered_names as $key => $value) {
-  $name = $value['name'];
-  $gender = $value['gender'];
-  $probability = $value['probability'];
-  $count = $value['count'];
-
-  $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, gender, probability, counter) VALUES(:name, :gender, :probability, :count)";
-
-  $request = $connection->prepare($sql_filtered_ins);
-
-  $query = $request->execute([':name' => $name, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
-  
+if(!empty($filtered_names)){
+  $savedToDatabase = saveFilteredToDatabase($filtered_names);
+  if(!$savedToDatabase){
+    echo 'Success! Records saved';
+  }
 }
 
-return $query;
 
-// echo '<pre>'.print_r($filtered_names, true).'</pre>';
+// Send the api request, param is a string chunk, return the response
+function curl_req($chunk){
+  $api_endpoint = "https://api.genderize.io?name=$chunk";
+  $curl = curl_init($api_endpoint);
+  
+  curl_setopt($curl, CURLOPT_HEADER, 0);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+  $res_req = curl_exec($curl);
+  return $res_req;
+}
+
+// Save to the db the filtered records
+function saveFilteredToDatabase($filtered_names_arr){
+  foreach ($filtered_names_arr as $key => $value) {
+    global $connection;
+    global $filtered_names_db;
+    $name = $value['name'];
+    $gender = $value['gender'];
+    $probability = $value['probability'];
+    $count = $value['count'];
+    
+    $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, gender, probability, counter) VALUES(:name, :gender, :probability, :count)";
+    
+    $request = $connection->prepare($sql_filtered_ins);
+    
+    $query = $request->execute([':name' => $name, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
+  }
+
+  return $query;
+}
 
 
