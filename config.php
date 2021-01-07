@@ -1,0 +1,44 @@
+<?php 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+/**
+ * Database name
+ */
+define('DB_NAME', 'people_names');
+
+/**
+ * Database user
+ */
+define('DB_USER', 'root');
+
+/**
+ * Database pass 
+ */
+define('DB_PASSWORD', 'root');
+
+/**
+ *  * Database host
+ */
+define('DB_HOST', 'localhost');
+
+/**
+ *  * Database main table
+ */
+define('DB_NAMES', 'people');
+
+/**
+ *  * Database table of 50 people
+ */
+define('DB_NAMES_LIMIT', 'people_limit_50');
+
+/**
+ *  * Database table for the filtered names
+ */
+define('DB_FILTERED_FIRSTNAMES', 'people_name_gender');
+
+try {
+    $connection = new PDO("mysql:host=localhost;dbname=people_names", DB_USER, DB_PASSWORD);
+} catch (PDOException $ex) {
+    echo $ex->getMessage();
+}
