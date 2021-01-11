@@ -18,8 +18,9 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 <!-- FLOW
  # index.php list the table data from DB_FILTERED_FIRSTNAMES
  # index.php click the btn -> request to find php
- # find.php ex batch of 10 names (from database with @@@ names) ==> api-endpoint, save to db
+ # find.php ex batch of 10 names (from database with @@@ names) ==> api-endpoint ==> save to db
  # index.php reload with the new records
+ # each click return ALL the records(first click 3 rows, second click, 3 + 5 new rows for ex). So we get repeated records. How to get only the newly inserted records?
 
  #
  -->
@@ -53,6 +54,8 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			<th scope="col">Gender</th>
 			<th scope="col">Probability</th>
 			<th scope="col">Counter</th>
+			<th scope="col">Dummy Data</th>
+
 			</tr>
 		</thead>
 		<tbody id="tbody_data">
@@ -91,8 +94,14 @@ $(document).ready(function() {
 			data: {
 				load_db_data: 'load_some_data'
 			}, success: function(response){
-				alert(response);
+				console.log(response);
+				// alert(response);
 				$('#tbody_data').append(response);
+
+			}, complete: function(message){
+				console.log(message);
+			}, error: function(error){
+				console.log(errors);
 			}
 		});
 

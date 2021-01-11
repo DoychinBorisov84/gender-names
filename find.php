@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 include_once 'config.php';
 
 $request_for_data = $_POST['load_db_data'];
-echo '<tr>Data from find.php</tr>'; exit;
+
 
 $names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
@@ -14,8 +14,10 @@ $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 $sql = "SELECT firstName FROM $names_limited";
 $records_db = $connection->query($sql);
 
+$lastInsertedId = '';
+
 $filtered_names = [];
-// Filter the db-data(name into words) vs the api-response for the probability, save db 
+// Filter the db-data(name-strings are split into words) vs the api-response for the probability & save to db 
 foreach ($records_db as $row) {
   $name_chunks = explode(' ', $row['firstName']);
 
@@ -35,13 +37,37 @@ foreach ($records_db as $row) {
   }
 }
 
+
 if(!empty($filtered_names)){
   $savedToDatabase = saveFilteredToDatabase($filtered_names);
-  if(!$savedToDatabase){
-    echo 'Success! Records saved';
+  if($savedToDatabase){
+    // echo 'Success! Records saved';
+    // The query
+    $sql_persons = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db";
+    $sql_result = $connection->query($sql_persons);
+
+
+    if($request_for_data == 'load_some_data'){
+      // echo '<tr>
+      //         <td>Data from find.php</td>
+      //       </tr>';
+      // echo json_encode($filtered_names);
+    
+      foreach($sql_result as $arr_ind => $names_arr){
+        echo "<tr>
+                  <td>".$names_arr['id']."</td>
+                  <td>".$names_arr['firstName']."</td>
+                  <td>".$names_arr['gender']."</td>
+                  <td>".$names_arr['probability']."</td>
+                  <td>".$names_arr['counter']."</td>
+                  <td>".$lastInsertedId."</td>
+                  
+             </tr>"; 
+      }    
+    }
+    
   }
 }
-
 
 // Send the api request, param is a string chunk, return the response
 function curl_req($chunk){
@@ -60,6 +86,8 @@ function saveFilteredToDatabase($filtered_names_arr){
   foreach ($filtered_names_arr as $key => $value) {
     global $connection;
     global $filtered_names_db;
+    global $lastInsertedId;
+
     $name = $value['name'];
     $gender = $value['gender'];
     $probability = $value['probability'];
@@ -70,6 +98,8 @@ function saveFilteredToDatabase($filtered_names_arr){
     $request = $connection->prepare($sql_filtered_ins);
     
     $query = $request->execute([':name' => $name, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
+
+    $lastInsertedId = $connection->lastInsertId();
   }
 
   return $query;
