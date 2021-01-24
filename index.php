@@ -20,7 +20,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
  # index.php click the btn -> request to find php
  # find.php ex batch of 10 names (from database with @@@ names) ==> api-endpoint ==> save to db
  # index.php reload with the new records
- # each click return ALL the records(first click 3 rows, second click, 3 + 5 new rows for ex). So we get repeated records. How to get only the newly inserted records?
+ # make a batch request to the api - check if can be optimized
 
  #
  -->
@@ -54,7 +54,6 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			<th scope="col">Gender</th>
 			<th scope="col">Probability</th>
 			<th scope="col">Counter</th>
-			<th scope="col">Dummy Data</th>
 
 			</tr>
 		</thead>
@@ -87,21 +86,22 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 $(document).ready(function() {
 	
 	$('.container').on('click', '#data_loader', function(){
-		
+		console.time('Clicked');
 		$.ajax({
 			url: 'find.php',
 			method: 'POST',
 			data: {
 				load_db_data: 'load_some_data'
 			}, success: function(response){
-				console.log(response);
+				// console.log(response);
 				// alert(response);
 				$('#tbody_data').append(response);
 
 			}, complete: function(message){
-				console.log(message);
+				// console.log(message);
+				console.timeEnd('Clicked');
 			}, error: function(error){
-				console.log(errors);
+				// console.log(errors);
 			}
 		});
 

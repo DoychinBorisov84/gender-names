@@ -39,20 +39,21 @@ foreach ($records_db as $row) {
 
 
 if(!empty($filtered_names)){
+  // Get the max id record, or use blank(0) as a starting points
+  $lastId = $connection->prepare("SELECT MAX(id) AS maxID FROM $filtered_names_db");
+  $lastId->execute();
+  $lastId_res = $lastId->fetch();
+  $max_ID = $lastId_res['maxID'];
+  $max_ID = ($max_ID !== NULL ? $max_ID : '0');
+    // var_dump($max_ID); //exit;
+
   $savedToDatabase = saveFilteredToDatabase($filtered_names);
+
   if($savedToDatabase){
-    // echo 'Success! Records saved';
-    // The query
-    $sql_persons = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db";
+    $sql_persons = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db WHERE id>$max_ID";
     $sql_result = $connection->query($sql_persons);
 
-
     if($request_for_data == 'load_some_data'){
-      // echo '<tr>
-      //         <td>Data from find.php</td>
-      //       </tr>';
-      // echo json_encode($filtered_names);
-    
       foreach($sql_result as $arr_ind => $names_arr){
         echo "<tr>
                   <td>".$names_arr['id']."</td>
@@ -61,7 +62,6 @@ if(!empty($filtered_names)){
                   <td>".$names_arr['probability']."</td>
                   <td>".$names_arr['counter']."</td>
                   <td>".$lastInsertedId."</td>
-                  
              </tr>"; 
       }    
     }
@@ -83,26 +83,23 @@ function curl_req($chunk){
 
 // Save to the db the filtered records
 function saveFilteredToDatabase($filtered_names_arr){
-  foreach ($filtered_names_arr as $key => $value) {
-    global $connection;
-    global $filtered_names_db;
-    global $lastInsertedId;
+  global $connection;
+  global $filtered_names_db;
 
+  foreach ($filtered_names_arr as $key => $value) {
     $name = $value['name'];
     $gender = $value['gender'];
     $probability = $value['probability'];
     $count = $value['count'];
-    
-    $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, gender, probability, counter) VALUES(:name, :gender, :probability, :count)";
+
+    $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, gender, probability, counter, timestamp) VALUES(:name, :gender, :probability, :count, now())";
     
     $request = $connection->prepare($sql_filtered_ins);
     
     $query = $request->execute([':name' => $name, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
-
-    $lastInsertedId = $connection->lastInsertId();
   }
 
-  return $query;
+ return $query;
 }
 
 
