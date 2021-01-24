@@ -13,28 +13,39 @@ $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
 $sql = "SELECT firstName FROM $names_limited";
 $records_db = $connection->query($sql);
-
+// var_dump($records_db->fetchAll()); exit;
 $lastInsertedId = '';
 
 $filtered_names = [];
 // Filter the db-data(name-strings are split into words) vs the api-response for the probability & save to db 
 foreach ($records_db as $row) {
-  $name_chunks = explode(' ', $row['firstName']);
-
+  $single_row_names = explode(' ', $row['firstName']);
+  // var_dump($row); exit;
   // Each db-row as chunk
-  foreach ($name_chunks as $chunk) {
-    $data = json_decode(curl_req($chunk));
+  // TODO: send all chunks in one cURL, the api can handle up to 10 params as &name[]=
+  // foreach ($single_row_names as $chunk) {
+    // echo 'start'; $time_start = microtime(true); 
+
+    $data = json_decode(curl_req($single_row_names));
+    // echo 'finish'; $time_end = microtime(true);
+    // $timeo = $time_end - $time_start; echo $timeo/60;
+    // var_dump($data);
+    //  exit;
     
-    // Push to the arr, only high probability records
-    if($data->gender != NULL && $data->probability >= 0.95){
-      array_push($filtered_names, array(
-        'name' => $data->name,
-        'gender' => $data->gender,
-        'probability' => $data->probability,
-        'count' => $data->count)
-      );
-    }
-  }
+     foreach ($data as $obj) {
+      //  var_dump($obj); exit;
+       # code...
+       // Push to the arr, only high probability records
+       if($obj->gender != NULL && $obj->probability >= 0.95){
+         array_push($filtered_names, array(
+           'name' => $obj->name,
+           'gender' => $obj->gender,
+           'probability' => $obj->probability,
+           'count' => $obj->count)
+         );
+       }
+     }
+  // }
 }
 
 
@@ -71,7 +82,12 @@ if(!empty($filtered_names)){
 
 // Send the api request, param is a string chunk, return the response
 function curl_req($chunk){
-  $api_endpoint = "https://api.genderize.io?name=$chunk";
+  $api_prepared = ''; // https://api.genderize.io/?name[]=peter&name[]=lois&name[]=stevie
+  foreach ($chunk as $name_string) {
+    $api_prepared .= 'name[]='.$name_string.'&';
+  }
+  // var_dump($api_prepared); //exit;
+  $api_endpoint = "https://api.genderize.io?$api_prepared"; // SINGLE $api_endpoint = "https://api.genderize.io?name=$api_prepared";
   $curl = curl_init($api_endpoint);
   
   curl_setopt($curl, CURLOPT_HEADER, 0);
