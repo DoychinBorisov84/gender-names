@@ -17,10 +17,11 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 <!-- TODO: make filter button the data from the table and search field, pagination -->
 <!-- FLOW
  # index.php list the table data from DB_FILTERED_FIRSTNAMES
- # index.php click the btn -> request to find php
+ # index.php click the btn -> request to find.php
  # find.php ex batch of 10 names (from database with @@@ names) ==> api-endpoint ==> save to db
- # index.php reload with the new records
- # make a batch request to the api - check if can be optimized
+ # index.php receive html-ajax with the new records
+ # TODO: check what num of rows(de-chunked) is good to be passed for requested -> delivered to the FE (25 tested -> 4-5 sec)
+ # // TODO: spinner/loader till the request succeed
 
  #
  -->
@@ -85,21 +86,25 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 <script>
 $(document).ready(function() {
 	
+	offset = 0;
 	$('.container').on('click', '#data_loader', function(){
-		console.time('Clicked');
+		// console.time('Clicked');
 		$.ajax({
 			url: 'find.php',
 			method: 'POST',
 			data: {
-				load_db_data: 'load_some_data'
+				load_db_data: 'load_some_data',
+				per_request: 10,
+				offset: offset
 			}, success: function(response){
 				// console.log(response);
 				// alert(response);
 				$('#tbody_data').append(response);
+				offset += 10;
 
 			}, complete: function(message){
 				// console.log(message);
-				console.timeEnd('Clicked');
+				// console.timeEnd('Clicked');
 			}, error: function(error){
 				// console.log(errors);
 			}

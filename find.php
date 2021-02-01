@@ -6,51 +6,53 @@ error_reporting(E_ALL);
 include_once 'config.php';
 
 $request_for_data = $_POST['load_db_data'];
-
+$per_request = $_POST['per_request'];
+$offset = $_POST['offset'];
 
 $names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
+// All the records from the test-table with limited records
 $sql = "SELECT firstName FROM $names_limited";
 $records_db = $connection->query($sql);
 // var_dump($records_db->fetchAll()); exit;
-$lastInsertedId = '';
+
+// -------------------------------------------------
+// TODO: click btn -> limit/offset per request(x10, x20) -> when reached last record from DB - display message for no more data, and don't  process more requests
+
+// $all_records = count($records_db->fetchAll());
+// $all_pages = ceil($all_records/$per_request); // all-records / per requested records num
+
+$sql_test = "SELECT firstName FROM $names_limited LIMIT $per_request OFFSET $offset"; 
+$request_test = $connection->query($sql_test);
+// var_dump($request_test->fetchAll()); exit;
+
+// -------------------------------------------------
 
 $filtered_names = [];
-// Filter the db-data(name-strings are split into words) vs the api-response for the probability & save to db 
-foreach ($records_db as $row) {
+// Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
+foreach ($request_test as $row) {
   $single_row_names = explode(' ', $row['firstName']);
-  // var_dump($row); exit;
-  // Each db-row as chunk
-  // TODO: send all chunks in one cURL, the api can handle up to 10 params as &name[]=
-  // foreach ($single_row_names as $chunk) {
-    // echo 'start'; $time_start = microtime(true); 
 
+  // Each db-row as array of chunks send to the http request
     $data = json_decode(curl_req($single_row_names));
-    // echo 'finish'; $time_end = microtime(true);
-    // $timeo = $time_end - $time_start; echo $timeo/60;
-    // var_dump($data);
-    //  exit;
     
-     foreach ($data as $obj) {
-      //  var_dump($obj); exit;
-       # code...
-       // Push to the arr, only high probability records
-       if($obj->gender != NULL && $obj->probability >= 0.95){
-         array_push($filtered_names, array(
-           'name' => $obj->name,
-           'gender' => $obj->gender,
-           'probability' => $obj->probability,
-           'count' => $obj->count)
-         );
-       }
-     }
-  // }
+    foreach ($data as $obj) {
+      // Push to data-holder-arr, only high probability records into it
+      if($obj->gender != NULL && $obj->probability >= 0.95){
+        array_push($filtered_names, array(
+          'name' => $obj->name,
+          'gender' => $obj->gender,
+          'probability' => $obj->probability,
+          'count' => $obj->count)
+        );
+      }
+    }
 }
 
 
 if(!empty($filtered_names)){
-  // Get the max id record, or use blank(0) as a starting points
+  // Get the max id record, or use blank(0) as a starting point
   $lastId = $connection->prepare("SELECT MAX(id) AS maxID FROM $filtered_names_db");
   $lastId->execute();
   $lastId_res = $lastId->fetch();
@@ -72,7 +74,6 @@ if(!empty($filtered_names)){
                   <td>".$names_arr['gender']."</td>
                   <td>".$names_arr['probability']."</td>
                   <td>".$names_arr['counter']."</td>
-                  <td>".$lastInsertedId."</td>
              </tr>"; 
       }    
     }
