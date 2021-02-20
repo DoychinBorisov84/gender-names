@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include_once 'config.php';
+require_once 'config.php';
 
 $request_for_data = $_POST['load_db_data'];
 $per_request = $_POST['per_request'];
@@ -13,25 +13,40 @@ $names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
 // All the records from the test-table with limited records
-$sql = "SELECT firstName FROM $names_limited";
-$records_db = $connection->query($sql);
-// var_dump($records_db->fetchAll()); exit;
+$all_records_sql = "SELECT firstName FROM $names_limited";
+$all_records = $connection->query($all_records_sql);
 
-// -------------------------------------------------
-// TODO: click btn -> limit/offset per request(x10, x20) -> when reached last record from DB - display message for no more data, and don't  process more requests
+// Records with limit,offset from the request passed
+$records_limit_offset_sql = "SELECT firstName FROM $names_limited LIMIT $per_request OFFSET $offset";
+$records_limit_offset = $connection->query($records_limit_offset_sql);
 
-// $all_records = count($records_db->fetchAll());
-// $all_pages = ceil($all_records/$per_request); // all-records / per requested records num
+// var_dump($records_limit_offset->fetchAll()); //exit;
 
-$sql_test = "SELECT firstName FROM $names_limited LIMIT $per_request OFFSET $offset"; 
-$request_test = $connection->query($sql_test);
-// var_dump($request_test->fetchAll()); exit;
 
-// -------------------------------------------------
+// TODO: the returned arr to be detected/verified that is empty or ??? and to return param to index.php for alerting data
+
+// ------------------- NOT WORKINGc
+// $records_limit_offset_sql = "SELECT firstName FROM :names_limited LIMIT :per_request OFFSET :offset";
+// $records_limit_offset = $connection->prepare($records_limit_offset_sql);
+// $res = $records_limit_offset->execute([':names_limited' => $names_limited, ':per_request' => $per_request, ':offset' => $offset]);
+// ------------------- NOT WORKINGc
+// var_dump($res); //exit;
+
+
+// $param = 'dummy';
+// // echo json_encode($param);
+// // TODO: if empty array is returned FE visualize ???
+// $arr = $records_limit_offset->fetchAll();
+// var_dump($records_limit_offset);
+// // if( empty($records_limit_offset->fetchAll()) ){
+// //   // $no_records_arr = ['no_records' => true];
+// //   // echo json_encode($no_records_arr);
+// //   echo json_encode($param);
+// // }
 
 $filtered_names = [];
 // Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
-foreach ($request_test as $row) {
+foreach ($records_limit_offset as $row) {
   $single_row_names = explode(' ', $row['firstName']);
 
   // Each db-row as array of chunks send to the http request
