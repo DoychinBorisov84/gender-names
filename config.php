@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 /**
  * Database name
  */
@@ -15,7 +16,7 @@ define('DB_USER', 'root');
 /**
  * Database pass 
  */
-define('DB_PASSWORD', 'root');
+define('DB_PASSWORD', '');
 
 /**
  *  * Database host
@@ -37,6 +38,11 @@ define('DB_NAMES_LIMIT', 'people_limit_50');
  */
 define('DB_FILTERED_FIRSTNAMES', 'people_name_gender');
 
+/**
+ * 
+ * @return array
+ * Pretty array print
+ */
 function print_pr($arr){
  echo '<pre>'.print_r($arr, true).'</pre>';
 }

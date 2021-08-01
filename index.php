@@ -23,13 +23,14 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 
 <!-- TODO: make sort button the data from the table and search field -->
 <!-- # TODO: check what num of rows(de-chunked) is good to be passed for requested -> delivered to the FE (25 tested -> 4-5 sec) -->
-<!-- # // DONE: spinner/loader till the request succeed -->
+<!-- # TODO: Remove duplicate names -->
+
 
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Names and gender</title>
+    <title>Gender type for people names</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">

@@ -20,12 +20,15 @@ $all_records = $connection->query($all_records_sql);
 $records_limit_offset_sql = "SELECT firstName FROM $names_limited LIMIT $per_request OFFSET $offset";
 $records_limit_offset = $connection->query($records_limit_offset_sql);
 
-// var_dump($records_limit_offset->fetchAll()); //exit;
+
+// var_dump($records_limit_offset->fetchAll()); die;//exit;
 
 
 // TODO: the returned arr to be detected/verified that is empty or ??? and to return param to index.php for alerting data
 
-// ------------------- NOT WORKINGc
+
+
+// ------------------- NOT WORKING
 // $records_limit_offset_sql = "SELECT firstName FROM :names_limited LIMIT :per_request OFFSET :offset";
 // $records_limit_offset = $connection->prepare($records_limit_offset_sql);
 // $res = $records_limit_offset->execute([':names_limited' => $names_limited, ':per_request' => $per_request, ':offset' => $offset]);
@@ -48,6 +51,12 @@ $filtered_names = [];
 // Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
 foreach ($records_limit_offset as $row) {
   $single_row_names = explode(' ', $row['firstName']);
+
+  $existSql = "SELECT firstName FROM $filtered_names_db WHERE firstName LIKE %Hermann%' ";
+  $exist = $connection->query($existSql);
+
+  // TODO: filter the records for entering into the DB
+  // var_dump($exist); die;
 
   // Each db-row as array of chunks send to the http request
     $data = json_decode(curl_req($single_row_names));
@@ -117,7 +126,7 @@ function curl_req($chunk){
 function saveFilteredToDatabase($filtered_names_arr){
   global $connection;
   global $filtered_names_db;
-
+// var_dump($filtered_names_arr); die;
   foreach ($filtered_names_arr as $key => $value) {
     $name = $value['name'];
     $gender = $value['gender'];
