@@ -42,7 +42,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
   	<h1 class="d-flex justify-content-center">Filter people names based on their gender</h1>
 
 	<!-- Sticky navbar -->
-	<nav class="navbar sticky-top navbar-light bg-light d-flex flex-row justify-content-center header">
+	<nav class="navbar sticky-top navbar-light bg-light d-flex flex-row justify-content-center" id="header">
 		<p class="p-2 text-center">
 			The table will fill on each button click with more data. The names are being extracted from the DB, send to external api for gender recognition and returned, then the data is being save into the DB and listed here.
 		</p>
@@ -95,9 +95,9 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
 <script>
-$(document).ready(function() {
-	
+	$(document).ready(function() {
 	offset = 0;
+	
 	$('.container').on('click', '#data_loader', function(){
 		// Show the loader-adnimation + scroll to top of the div
 		$('#container-loader').show();
@@ -133,7 +133,7 @@ $(document).ready(function() {
 
 	var header = document.getElementById('header');
 	var headerOffsetTop = header.offsetTop;
-	// console.log(sticky);
+	// console.log(headerOffsetTop);
 	
 	window.onscroll = function(){
 		if (window.pageYOffset > headerOffsetTop) {

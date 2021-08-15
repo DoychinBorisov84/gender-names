@@ -36,7 +36,7 @@ define('DB_NAMES_LIMIT', 'people_limit_50');
 /**
  *  * Database table for the filtered names
  */
-define('DB_FILTERED_FIRSTNAMES', 'people_name_gender');
+define('DB_FILTERED_FIRSTNAMES', 'filtered_names');
 
 /**
  * 

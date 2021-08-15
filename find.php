@@ -1,69 +1,46 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require_once 'config.php';
 
+// The request, with the offset for processing DB data -> api -> save DB
 $request_for_data = $_POST['load_db_data'];
 $per_request = $_POST['per_request'];
 $offset = $_POST['offset'];
 
-$names_limited = DB_NAMES_LIMIT;
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
-// All the records from the test-table with limited records
-$all_records_sql = "SELECT firstName FROM $names_limited";
+// All the records from the test-table with for processing(limited records for test)
+$all_records_sql = "SELECT firstName FROM ".DB_NAMES_LIMIT;
 $all_records = $connection->query($all_records_sql);
 
+// DB records filtered and stored data
+$all_records_stored_sql = "SELECT firstName FROM ".DB_FILTERED_FIRSTNAMES;
+$all_records_stored = $connection->query($all_records_stored_sql);
+
 // Records with limit,offset from the request passed
-$records_limit_offset_sql = "SELECT firstName FROM $names_limited LIMIT $per_request OFFSET $offset";
+
+$records_limit_offset_sql = "SELECT firstName FROM ".DB_NAMES_LIMIT." LIMIT $per_request OFFSET $offset";
+
 $records_limit_offset = $connection->query($records_limit_offset_sql);
+// var_dump($records_limit_offset_sql); die;
+// var_dump($records_limit_offset->fetchAll()); die; 
 
 
-// var_dump($records_limit_offset->fetchAll()); die;//exit;
-
-
-// TODO: the returned arr to be detected/verified that is empty or ??? and to return param to index.php for alerting data
-
-
-
-// ------------------- NOT WORKING
-// $records_limit_offset_sql = "SELECT firstName FROM :names_limited LIMIT :per_request OFFSET :offset";
-// $records_limit_offset = $connection->prepare($records_limit_offset_sql);
-// $res = $records_limit_offset->execute([':names_limited' => $names_limited, ':per_request' => $per_request, ':offset' => $offset]);
-// ------------------- NOT WORKINGc
-// var_dump($res); //exit;
-
-
-// $param = 'dummy';
-// // echo json_encode($param);
-// // TODO: if empty array is returned FE visualize ???
-// $arr = $records_limit_offset->fetchAll();
-// var_dump($records_limit_offset);
-// // if( empty($records_limit_offset->fetchAll()) ){
-// //   // $no_records_arr = ['no_records' => true];
-// //   // echo json_encode($no_records_arr);
-// //   echo json_encode($param);
-// // }
-
-$filtered_names = [];
 // Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
+$filtered_names = [];
 foreach ($records_limit_offset as $row) {
   $single_row_names = explode(' ', $row['firstName']);
-
-  $existSql = "SELECT firstName FROM $filtered_names_db WHERE firstName LIKE %Hermann%' ";
-  $exist = $connection->query($existSql);
-
-  // TODO: filter the records for entering into the DB
-  // var_dump($exist); die;
 
   // Each db-row as array of chunks send to the http request
     $data = json_decode(curl_req($single_row_names));
     
     foreach ($data as $obj) {
       // Push to data-holder-arr, only high probability records into it
-      if($obj->gender != NULL && $obj->probability >= 0.95){
+      $existSql = "SELECT * FROM $filtered_names_db WHERE firstName LIKE '%$obj->name%' ";
+      $exist = $connection->query($existSql);
+
+    // var_dump($exist->fetchAll()); //die;
+
+      if($obj->gender != NULL && $obj->probability >= 0.95 && $exist->fetchAll() == null){
         array_push($filtered_names, array(
           'name' => $obj->name,
           'gender' => $obj->gender,
@@ -73,7 +50,7 @@ foreach ($records_limit_offset as $row) {
       }
     }
 }
-
+// var_dump($filtered_names);
 
 if(!empty($filtered_names)){
   // Get the max id record, or use blank(0) as a starting point
@@ -82,12 +59,12 @@ if(!empty($filtered_names)){
   $lastId_res = $lastId->fetch();
   $max_ID = $lastId_res['maxID'];
   $max_ID = ($max_ID !== NULL ? $max_ID : '0');
-    // var_dump($max_ID); //exit;
+    // var_dump($max_ID); die;
 
   $savedToDatabase = saveFilteredToDatabase($filtered_names);
 
   if($savedToDatabase){
-    $sql_persons = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db WHERE id>$max_ID";
+    $sql_persons = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db WHERE id > $max_ID";
     $sql_result = $connection->query($sql_persons);
 
     if($request_for_data == 'load_some_data'){
