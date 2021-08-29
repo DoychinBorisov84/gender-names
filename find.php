@@ -8,37 +8,40 @@ $offset = $_POST['offset'];
 
 $filtered_names_db = DB_FILTERED_FIRSTNAMES;
 
-// All the records from the test-table with for processing(limited records for test)
-$all_records_sql = "SELECT firstName FROM ".DB_NAMES_LIMIT;
-$all_records = $connection->query($all_records_sql);
-
-// DB records filtered and stored data
-$all_records_stored_sql = "SELECT firstName FROM ".DB_FILTERED_FIRSTNAMES;
-$all_records_stored = $connection->query($all_records_stored_sql);
-
-// Records with limit,offset from the request passed
-
-$records_limit_offset_sql = "SELECT firstName FROM ".DB_NAMES_LIMIT." LIMIT $per_request OFFSET $offset";
+// Records per request with limit/offset
+$records_limit_offset_sql = "SELECT id, firstName FROM ".DB_NAMES_LIMIT." LIMIT $per_request OFFSET $offset";
 
 $records_limit_offset = $connection->query($records_limit_offset_sql);
-// var_dump($records_limit_offset_sql); die;
-// var_dump($records_limit_offset->fetchAll()); die; 
+// var_dump($records_limit_offset->fetchAll()); //die; 
+
+// Check if its last row of the table
+$lastRow_sql = "SELECT id, firstName FROM ".DB_NAMES_LIMIT." ORDER BY id DESC LIMIT 1";
+$lastRow = $connection->query($lastRow_sql)->fetch(PDO::FETCH_ASSOC);
+
+// var_dump($lastRow['id']);
 
 
 // Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
 $filtered_names = [];
 foreach ($records_limit_offset as $row) {
   $single_row_names = explode(' ', $row['firstName']);
+  
+  if($lastRow['id'] == $row['id']){
+    // die('No more records in the table');
+    echo 'last_row';
+  }
 
   // Each db-row as array of chunks send to the http request
     $data = json_decode(curl_req($single_row_names));
     
     foreach ($data as $obj) {
       // Push to data-holder-arr, only high probability records into it
-      $existSql = "SELECT * FROM $filtered_names_db WHERE firstName LIKE '%$obj->name%' ";
+      $existSql = "SELECT firstName FROM $filtered_names_db WHERE firstName LIKE '%$obj->name%' ";
       $exist = $connection->query($existSql);
 
-    // var_dump($exist->fetchAll()); //die;
+      // if($exist->fetchAll()){
+      //   die('No more records');
+      // }
 
       if($obj->gender != NULL && $obj->probability >= 0.95 && $exist->fetchAll() == null){
         array_push($filtered_names, array(

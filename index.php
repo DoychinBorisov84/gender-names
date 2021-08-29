@@ -84,6 +84,25 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 		<div class="violet"></div>
 	</div>
 
+	<!-- Modal -->
+	<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Info</h4>
+		</div>
+		<div class="modal-body">
+			<p>No more record to load from the database</p>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		</div>
+		</div>
+	</div>
+	</div>
+
   </div>
   	
 
@@ -109,6 +128,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			method: 'POST',
 			data: {
 				load_db_data: 'load_some_data',
+				// starts_id: '',
 				per_request: 10,
 				offset: offset
 			}, success: function(response){
@@ -119,7 +139,10 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 				$('#container-loader').hide();	// hide the loader
 
 				// If no more data? 
-				// if(response.){}
+				if(response == 'last_row'){
+					// console.log(response);
+					$("#myModal").modal('show');
+				}
 
 			}, complete: function(message){
 				// console.log(message);
