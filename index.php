@@ -91,7 +91,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 		<div class="modal-content">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal">&times;</button>
-			<h4 class="modal-title">Info</h4>
+			<!-- <h4 class="modal-title">Info</h4> -->
 		</div>
 		<div class="modal-body">
 			<p>No more record to load from the database</p>
@@ -134,16 +134,15 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			}, success: function(response){
 				// console.log(response);				
 				// alert(response);
-				$('#tbody_data').append(response);
-				offset += 10;
-				$('#container-loader').hide();	// hide the loader
-
 				// If no more data? 
 				if(response == 'last_row'){
 					// console.log(response);
 					$("#myModal").modal('show');
+				}else{
+					$('#tbody_data').append(response);
+					offset += 10;
 				}
-
+				$('#container-loader').hide();	// hide the loader
 			}, complete: function(message){
 				// console.log(message);
 				// console.timeEnd('Clicked');

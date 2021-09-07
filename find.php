@@ -18,8 +18,20 @@ $records_limit_offset = $connection->query($records_limit_offset_sql);
 $lastRow_sql = "SELECT id, firstName FROM ".DB_NAMES_LIMIT." ORDER BY id DESC LIMIT 1";
 $lastRow = $connection->query($lastRow_sql)->fetch(PDO::FETCH_ASSOC);
 
-// var_dump($lastRow['id']);
+// Source DB records
+$source_db_ids_sql = "SELECT id FROM ".DB_NAMES_LIMIT." ";
+$source_db_ids = $connection->query($source_db_ids_sql)->fetchAll(PDO::FETCH_COLUMN, 0);
 
+$filtered_db_lastRecord_sql = "SELECT person_id FROM ".DB_FILTERED_FIRSTNAMES." ORDER BY id DESC LIMIT 1 ";
+$filtered_db_lastRecord = $connection->query($filtered_db_lastRecord_sql)->fetch(PDO::FETCH_COLUMN, 0);
+
+var_dump($source_db_ids, $filtered_db_lastRecord ); die;
+
+// Compare source VS filtered databases
+// var_dump($lastRow['id']); die;
+if(in_array($filtered_db_lastRecord, $source_db_ids)){
+  echo 'last_row';
+}
 
 // Filter the db-data(name-row is split into words) vs the api-response for the probability & save to db 
 $filtered_names = [];
@@ -48,7 +60,9 @@ foreach ($records_limit_offset as $row) {
           'name' => $obj->name,
           'gender' => $obj->gender,
           'probability' => $obj->probability,
-          'count' => $obj->count)
+          'count' => $obj->count,
+          'person_id' => $row['id']
+          )
         );
       }
     }
@@ -109,15 +123,16 @@ function saveFilteredToDatabase($filtered_names_arr){
 // var_dump($filtered_names_arr); die;
   foreach ($filtered_names_arr as $key => $value) {
     $name = $value['name'];
+    $person_id = $value['person_id'];
     $gender = $value['gender'];
     $probability = $value['probability'];
     $count = $value['count'];
 
-    $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, gender, probability, counter, timestamp) VALUES(:name, :gender, :probability, :count, now())";
+    $sql_filtered_ins = "INSERT INTO $filtered_names_db(firstName, person_id, gender, probability, counter, timestamp) VALUES(:name, :person_id, :gender, :probability, :count, now())";
     
     $request = $connection->prepare($sql_filtered_ins);
     
-    $query = $request->execute([':name' => $name, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
+    $query = $request->execute([':name' => $name, 'person_id' => $person_id, ':gender' => $gender, ':probability' => $probability, ':count' => $count]);
   }
 
  return $query;
