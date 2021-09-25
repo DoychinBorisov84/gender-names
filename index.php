@@ -4,28 +4,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'config.php';
-// include_once 'find.php';
 
-$filtered_names_db = DB_FILTERED_FIRSTNAMES;
-
-$sql_selectFiltered = "SELECT id, firstName, gender, probability, counter FROM $filtered_names_db";
+$sql_selectFiltered = "SELECT id, firstName, gender, probability, counter FROM ".DB_FILTERED_FIRSTNAMES;
 
 $selectFiltered = $connection->query($sql_selectFiltered);
-// echo '<pre>'.print_r($filtered_names, true).'</pre>';
-
 ?>
-<!-- FLOW
- # index.php list the table data from DB_FILTERED_FIRSTNAMES
- # index.php click the btn -> request to find.php
- # find.php ex batch of 10 names (from database with @@@ names) ==> api-endpoint ==> save to db
- # index.php receive html-ajax with the new records
- -->
-
-<!-- TODO: make sort button the data from the table and search field -->
-<!-- # TODO: check what num of rows(de-chunked) is good to be passed for requested -> delivered to the FE (25 tested -> 4-5 sec) -->
-<!-- # TODO: Remove duplicate names -->
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,12 +22,12 @@ $selectFiltered = $connection->query($sql_selectFiltered);
   <body>
   <div class="container">
 	
-  	<h1 class="d-flex justify-content-center">Filter people names based on their gender</h1>
+  	<h1 class="d-flex justify-content-center" id="projectName">Filter people names based on their gender</h1>
 
 	<!-- Sticky navbar -->
 	<nav class="navbar sticky-top navbar-light bg-light d-flex flex-row justify-content-center" id="header">
 		<p class="p-2 text-center">
-			The table will fill on each button click with more data. The names are being extracted from the DB, send to external api for gender recognition and returned, then the data is being save into the DB and listed here.
+			The table will fill on each button click with more data. The names are being extracted from source database table with names, send to external api for gender recognition and returned, then the data is being save into the DB and listed here. The table row contains `name`, which can consist of 2, 3 or more strings ex "John Doe Smith " or single one like "Nicolas"...
 		</p>
 		<div class="col text-center">
 			<button type="button" class="btn btn-primary p-2" id="data_loader">Process names</button>
@@ -53,7 +36,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 
 	<!-- The table with the data -->
 	<table class="table table-striped table-dark">
-		<thead>
+		<thead class="sticky-top" id="tableHeader">
 			<tr>
 			<th scope="col">#</th>
 			<th scope="col">Name</th>
@@ -76,6 +59,8 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 		</tbody>
 	</table>
 
+	<input class="btn btn-info" type="reset" value="Scroll To Top" id="scrollTop">
+
 	<!-- The hidden loader -->
 	<div id="container-loader" style="display:none;">
 		<div class="yellow"></div>
@@ -88,24 +73,20 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 	<div id="myModal" class="modal fade" role="dialog">
 	<div class="modal-dialog">
 		<!-- Modal content-->
-		<div class="modal-content">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-			<!-- <h4 class="modal-title">Info</h4> -->
-		</div>
-		<div class="modal-body">
-			<p>No more record to load from the database</p>
-		</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		</div>
+		<div class="modal-content" style="background-color: #bfbfbf;">
+			<div class="modal-body" style="padding:25px">
+				<p style="font:20px Verdana bold">No more record to load from the source database</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal" style="font-family: Verdana;">Close</button>
+			</div>
 		</div>
 	</div>
 	</div>
 
   </div>
-  	
 
+  <!-- Javascript -->
 <script
   src="https://code.jquery.com/jquery-3.5.1.min.js"
   integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
@@ -128,47 +109,52 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			method: 'POST',
 			data: {
 				load_db_data: 'load_some_data',
-				// starts_id: '',
 				per_request: 10,
 				offset: offset
 			}, success: function(response){
-				// console.log(response);				
-				// alert(response);
-				// If no more data? 
 				if(response == 'last_row'){
-					// console.log(response);
 					$("#myModal").modal('show');
 				}else{
 					$('#tbody_data').append(response);
 					offset += 10;
 				}
 				$('#container-loader').hide();	// hide the loader
-			}, complete: function(message){
-				// console.log(message);
-				// console.timeEnd('Clicked');
-			}, error: function(error){
-				// console.log(errors);
-			}
+			}, complete: function(message){},
+			 error: function(error){}
 		});
 
 	}); // on click
 
+	// TODO: apply for the 1) table thead 2) Scroll To Top btn
 	var header = document.getElementById('header');
+	var tableHeader = document.getElementById('tableHeader');
+
 	var headerOffsetTop = header.offsetTop;
+	var tableHeaderOffsetTop = tableHeader.offsetTop;
+
+	var projectNameH1 = document.getElementById('projectName');
+	var projectNameH1OffsetTop = projectNameH1.offsetTop;
+
 	// console.log(headerOffsetTop);
 	
 	window.onscroll = function(){
 		if (window.pageYOffset > headerOffsetTop) {
+			// tableHeader.classList.add("sticky");
 			header.classList.add("sticky");
 		} else {
+			// tableHeader.classList.remove("sticky");
 			header.classList.remove("sticky");
 		}
 	}
 
+	// Scroll To Top
+	$("#scrollTop").click(function()
+	{
+		jQuery('html,body').animate({scrollTop:0},1000);
+	})
 
-}); // document ready
+	}); // document ready
 </script>
-
 
 	</body>
 </html>

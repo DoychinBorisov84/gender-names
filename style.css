@@ -49,6 +49,12 @@ div#container-loader {
     color: #00dbf9;
 }
 
+#scrollTop{
+	position: relative;
+	left: -120px;
+	bottom: 100px;
+}
+
 
 @keyframes bounce {
 	0%, 50%, 100% {
