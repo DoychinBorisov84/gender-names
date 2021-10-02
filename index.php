@@ -25,7 +25,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
   	<h1 class="d-flex justify-content-center" id="projectName">Filter people names based on their gender</h1>
 
 	<!-- Sticky navbar -->
-	<nav class="navbar sticky-top navbar-light bg-light d-flex flex-row justify-content-center" id="header">
+	<nav class="navbar navbar-light bg-light d-flex flex-row justify-content-center" id="header">
 		<p class="p-2 text-center">
 			The table will fill on each button click with more data. The names are being extracted from source database table with names, send to external api for gender recognition and returned, then the data is being save into the DB and listed here. The table row contains `name`, which can consist of 2, 3 or more strings ex "John Doe Smith " or single one like "Nicolas"...
 		</p>
@@ -59,7 +59,8 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 		</tbody>
 	</table>
 
-	<input class="btn btn-info" type="reset" value="Scroll To Top" id="scrollTop">
+	<input class="btn btn-info" type="reset" value="Go To Top" id="scrollTop">
+	<input class="btn btn-danger" type="" value="Export CSV" id="exportToCSV">
 
 	<!-- The hidden loader -->
 	<div id="container-loader" style="display:none;">
@@ -127,23 +128,21 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 
 	// TODO: apply for the 1) table thead 2) Scroll To Top btn
 	var header = document.getElementById('header');
-	var tableHeader = document.getElementById('tableHeader');
-
 	var headerOffsetTop = header.offsetTop;
-	var tableHeaderOffsetTop = tableHeader.offsetTop;
-
-	var projectNameH1 = document.getElementById('projectName');
-	var projectNameH1OffsetTop = projectNameH1.offsetTop;
-
-	// console.log(headerOffsetTop);
 	
 	window.onscroll = function(){
 		if (window.pageYOffset > headerOffsetTop) {
-			// tableHeader.classList.add("sticky");
-			header.classList.add("sticky");
+			$('#tableHeader').css({'background-color': 'grey', 'opacity': '0.8'});
+			$('#scrollTop').insertBefore('table');
+			$('#scrollTop').css({'position': 'fixed', 'left': '0px'});
+			$('#exportToCSV').insertBefore('table');
+			$('#exportToCSV').css({'position': 'fixed', 'right': '0px'});
 		} else {
-			// tableHeader.classList.remove("sticky");
-			header.classList.remove("sticky");
+			$('#tableHeader').css({'background-color': '#212529', 'opacity': '1.0'});
+			$('#scrollTop').insertAfter('table');
+			$('#scrollTop').css({'position': 'relative'});
+			$('#exportToCSV').insertAfter('table');
+			$('#exportToCSV').css({'position': 'relative'});
 		}
 	}
 
