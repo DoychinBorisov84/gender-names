@@ -8,6 +8,7 @@ require_once 'config.php';
 $sql_selectFiltered = "SELECT id, firstName, gender, probability, counter FROM ".DB_FILTERED_FIRSTNAMES;
 
 $selectFiltered = $connection->query($sql_selectFiltered);
+// var_dump(serialize($selectFiltered->fetchAll()));
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +61,10 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 	</table>
 
 	<input class="btn btn-info" type="reset" value="Go To Top" id="scrollTop">
-	<input class="btn btn-danger" type="" value="Export CSV" id="exportToCSV">
+	<form action="export.php" method="POST" id="exportToCSV">
+		<input type="hidden" name="selectFiltered" value="<?php ?>">
+		<input class="btn btn-danger" type="submit" value="Export CSV" id="nnn">
+	</form>
 
 	<!-- The hidden loader -->
 	<div id="container-loader" style="display:none;">
