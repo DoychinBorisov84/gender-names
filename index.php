@@ -5,6 +5,11 @@ error_reporting(E_ALL);
 
 require_once 'config.php';
 
+if(!empty($_GET['search'])){
+	$search = $_GET['search'];
+	// var_dump($search);
+}
+
 $sql_selectFiltered = "SELECT id, firstName, gender, probability, counter FROM ".DB_FILTERED_FIRSTNAMES;
 
 $selectFiltered = $connection->query($sql_selectFiltered);
@@ -23,7 +28,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
   <body>
   <div class="container">
 	
-  	<h1 class="d-flex justify-content-center" id="projectName">Filter people names based on their gender</h1>
+  	<a href="/" style="text-decoration:none"><h1 class="d-flex justify-content-center" id="projectName">Filter people names based on their gender</h1></a>
 
 	<!-- Sticky navbar -->
 	<nav class="navbar navbar-light bg-light d-flex flex-row justify-content-center" id="header">
@@ -31,7 +36,16 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 			The table will fill on each button click with more data. The names are being extracted from source database table with names, send to external api for gender recognition and returned, then the data is being save into the DB and listed here. The table row contains `name`, which can consist of 2, 3 or more strings ex "John Doe Smith " or single one like "Nicolas"...
 		</p>
 		<div class="col text-center">
-			<button type="button" class="btn btn-primary p-2" id="data_loader">Process names</button>
+			<button type="button" class="btn btn-primary p-2" id="data_loader" onclick="postRequest(name=false)">Process names from DB source</button>
+		</div>
+		<div class="col text-center">
+			<p> or search a name you want</p>
+		</div>
+		<div class="col text-center">
+			<!-- <form action="" name="searchName" method="GET"> -->
+				<input type="search" name="search" class="form-control" id="name" placeholder="Enter name..." style="width:auto !important; display:inline-block !important" value="<?php echo !empty($_GET['search']) ? $_GET['search'] : ''; ?>">
+				<button type="submit" class="btn btn-warning p-2" id="search_btn" style="display:inline-block !important" onclick="postRequest(name=true)">Search</button>
+			<!-- </form> -->
 		</div>
 	</nav>
 
@@ -63,7 +77,7 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 	<input class="btn btn-info" type="reset" value="Go To Top" id="scrollTop">
 	<form action="export.php" method="POST" id="exportToCSV">
 		<input type="hidden" name="selectFiltered" value="<?php ?>">
-		<input class="btn btn-danger" type="submit" value="Export CSV" id="nnn">
+		<input class="btn btn-danger" type="submit" value="Export CSV" id="exportBtn">
 	</form>
 
 	<!-- The hidden loader -->
@@ -76,17 +90,39 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 
 	<!-- Modal -->
 	<div id="myModal" class="modal fade" role="dialog">
-	<div class="modal-dialog">
-		<!-- Modal content-->
-		<div class="modal-content" style="background-color: #bfbfbf;">
-			<div class="modal-body" style="padding:25px">
-				<p style="font:20px Verdana bold">No more record to load from the source database</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal" style="font-family: Verdana;">Close</button>
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content" style="background-color: #bfbfbf;">
+				<div class="modal-body" style="padding:25px">
+					<p style="font:20px Verdana bold">No more record to load from the source database</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" style="font-family: Verdana;">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal with data -->
+	<div id="dataModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content" style="background-color: #bfbfbf;">
+				<div class="modal-body" style="padding:25px">
+					<label for="data-name">Name</label>
+					<input type="text" readonly style="font:20px Verdana bold" id="data-name" name="data-name"></input><br/>
+					<label for="data-gender">Gender</label>
+					<input type="text" readonly style="font:20px Verdana bold" id="data-gender"></input><br/>
+					<label for="data-probability">Probability</label>
+					<input type="text" readonly style="font:20px Verdana bold" id="data-probability"></input><br/>
+					<label for="data-count">Counter</label>
+					<input type="text" readonly style="font:20px Verdana bold" id="data-count"></input>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" style="font-family: Verdana;">Close</button>
+				</div>
+			</div>
+		</div>
 	</div>
 
   </div>
@@ -101,23 +137,73 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 
 <script>
 	$(document).ready(function() {
-	offset = 0;
-	
-	$('.container').on('click', '#data_loader', function(){
+
+		// TODO: apply for the 1) table thead 2) Scroll To Top btn
+		var header = document.getElementById('header');
+		var headerOffsetTop = header.offsetTop;
+		
+		window.onscroll = function(){
+			if (window.pageYOffset > headerOffsetTop) {
+				$('#tableHeader').css({'background-color': 'grey', 'opacity': '0.8'});
+				$('#scrollTop').insertBefore('table');
+				$('#scrollTop').css({'position': 'fixed', 'left': '0px'});
+				$('#exportToCSV').insertBefore('table');
+				$('#exportToCSV').css({'position': 'fixed', 'right': '0px'});
+			} else {
+				$('#tableHeader').css({'background-color': '#212529', 'opacity': '1.0'});
+				$('#scrollTop').insertAfter('table');
+				$('#scrollTop').css({'position': 'relative'});
+				$('#exportToCSV').insertAfter('table');
+				$('#exportToCSV').css({'position': 'relative'});
+			}
+		}
+
+		// Scroll To Top
+		$("#scrollTop").click(function()
+		{
+			jQuery('html,body').animate({scrollTop:0},1000);
+		})
+
+	}); // document ready
+
+	// The post request
+	function postRequest(name){
+		// console.log(name);
+		if(name){
+			var inputName = $("#name").val();
+			if(inputName == '' || inputName.length < 3){
+				alert('Enter name of 3+ characters to be checked');
+				return false;
+			}
+		}
+		var offset = 0;	
+
 		// Show the loader-adnimation + scroll to top of the div
 		$('#container-loader').show();
 		var loaderDiv = document.getElementById("container-loader");
 		loaderDiv.scrollIntoView();
-
+		
 		$.ajax({
 			url: 'find.php',
 			method: 'POST',
 			data: {
-				load_db_data: 'load_some_data',
+				dataSource: name ? inputName : 'database',
 				per_request: 10,
 				offset: offset
 			}, success: function(response){
-				if(response == 'last_row'){
+				if(inputName){
+					var looper = JSON.parse(response);
+					// console.log(looper.count);
+					// jQuery(response).each(function(i, item){
+					// 	console.log(item, i)
+						$('#dataModal #data-name').val(looper.name);
+						$('#dataModal #data-gender').val(looper.gender);
+						$('#dataModal #data-probability').val(looper.probability);
+						$('#dataModal #data-count').val(looper.count);
+						$('#dataModal').modal('show');
+					// });
+				}
+				else if(response == 'last_row'){
 					$("#myModal").modal('show');
 				}else{
 					$('#tbody_data').append(response);
@@ -125,38 +211,9 @@ $selectFiltered = $connection->query($sql_selectFiltered);
 				}
 				$('#container-loader').hide();	// hide the loader
 			}, complete: function(message){},
-			 error: function(error){}
+				error: function(error){}
 		});
-
-	}); // on click
-
-	// TODO: apply for the 1) table thead 2) Scroll To Top btn
-	var header = document.getElementById('header');
-	var headerOffsetTop = header.offsetTop;
-	
-	window.onscroll = function(){
-		if (window.pageYOffset > headerOffsetTop) {
-			$('#tableHeader').css({'background-color': 'grey', 'opacity': '0.8'});
-			$('#scrollTop').insertBefore('table');
-			$('#scrollTop').css({'position': 'fixed', 'left': '0px'});
-			$('#exportToCSV').insertBefore('table');
-			$('#exportToCSV').css({'position': 'fixed', 'right': '0px'});
-		} else {
-			$('#tableHeader').css({'background-color': '#212529', 'opacity': '1.0'});
-			$('#scrollTop').insertAfter('table');
-			$('#scrollTop').css({'position': 'relative'});
-			$('#exportToCSV').insertAfter('table');
-			$('#exportToCSV').css({'position': 'relative'});
-		}
 	}
-
-	// Scroll To Top
-	$("#scrollTop").click(function()
-	{
-		jQuery('html,body').animate({scrollTop:0},1000);
-	})
-
-	}); // document ready
 </script>
 
 	</body>
