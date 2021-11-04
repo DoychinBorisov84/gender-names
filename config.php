@@ -47,6 +47,17 @@ function print_pr($arr){
  echo '<pre>'.print_r($arr, true).'</pre>';
 }
 
+/**
+ * Error report on 
+ * 
+ */ 
+function errorReport(){
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
+
+
 try {
     $connection = new PDO("mysql:host=localhost;dbname=people_names", DB_USER, DB_PASSWORD);
 } catch (PDOException $ex) {

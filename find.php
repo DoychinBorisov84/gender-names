@@ -1,31 +1,40 @@
 <?php
-require_once 'config.php';
+require_once __DIR__.'/config.php';
+require_once __DIR__.'/Classes/DB.php';
+
+$db = new DB;
+// var_dump($db);
 
 // The request, with the offset for processing DB data -> api -> save DB
-$request_for_data = $_POST['dataSource'];
+$requestType = $_POST['requestType'];
 $per_request = $_POST['per_request'];
 $offset = $_POST['offset'];
-// var_dump($request_for_data); die;
-if($request_for_data != 'database'){
-  $arr = explode(' ', $request_for_data);
+
+if($requestType != 'database'){
+  $arr = explode(' ', $requestType);
   $result = curl_req($arr);
   // var_dump(json_decode($result)[0]);
   $res2 = json_decode($result)[0];
   echo json_encode($res2);
 }else{
+  $db = new DB;
+
   $filtered_names_db = DB_FILTERED_FIRSTNAMES;
   
   // Records per request with limit/offset
-  $records_limit_offset_sql = "SELECT id, firstName FROM ".DB_NAMES_LIMIT." LIMIT $per_request OFFSET $offset";
-  $records_limit_offset = $connection->query($records_limit_offset_sql);
-  
+  // $records_limit_offset_sql = "SELECT id, firstName FROM ".DB_NAMES_LIMIT." LIMIT $per_request OFFSET $offset";
+  // $records_limit_offset = $connection->query($records_limit_offset_sql);
+
   // Source DB last record ID
   $source_db_lastId_sql = "SELECT id FROM ".DB_NAMES_LIMIT." ORDER BY id DESC LIMIT 1";
   $source_db_last_id = $connection->query($source_db_lastId_sql)->fetch(PDO::FETCH_COLUMN, 0);
-  
+  // var_dump($source_db_last_id, $db->getSourceLastRecordId()); die;
+
   // Filtered DB last record ID
   $filtered_db_lastID_sql = "SELECT person_id FROM ".DB_FILTERED_FIRSTNAMES." ORDER BY id DESC LIMIT 1";
   $filtered_db_lastID = $connection->query($filtered_db_lastID_sql)->fetch(PDO::FETCH_COLUMN, 0);
+  var_dump($filtered_db_lastID, $db->getFilteredLastRecordId()); die;
+
   
   // Compare source VS filtered databases
   if($filtered_db_lastID == $source_db_last_id){
@@ -86,7 +95,7 @@ if($request_for_data != 'database'){
         $sql_result = $connection->query($sql_persons);
         
         // Return the html for appending to the table last row
-        if($request_for_data == 'database'){
+        if($requestType == 'database'){
           foreach($sql_result as $arr_ind => $names_arr){
             echo "<tr>
                       <td>".$names_arr['id']."</td>
