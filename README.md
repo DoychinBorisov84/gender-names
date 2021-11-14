@@ -1,26 +1,9 @@
 <div id="top"></div>
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+  <a href="https://github.com/DoychinBorisov84/gender-names/README.md">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -73,7 +56,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- CONTACT -->
 ## Contact
 
-Doychin Borisov - [linkedin-url](https://www.linkedin.com/in/doychin-borisov/) - Linked In
+Linked In - [linkedin-url](https://www.linkedin.com/in/doychin-borisov/)
 
 Project Link: [https://github.com/DoychinBorisov84/gender-names](https://github.com/DoychinBorisov84/gender-names)
 
@@ -82,8 +65,6 @@ Project Link: [https://github.com/DoychinBorisov84/gender-names](https://github.
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
 
 * [Genderize IO](https://genderize.io/)
 
@@ -94,5 +75,5 @@ Use this space to list resources you find helpful and would like to give credit 
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
 
-[linkedin-url]: https://linkedin.com/in/othneildrew
+[linkedin-url]: https://www.linkedin.com/in/doychin-borisov/
 [product-screenshot]: images/screenshot.png
