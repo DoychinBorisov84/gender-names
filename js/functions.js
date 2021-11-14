@@ -1,7 +1,5 @@
 //  Ajax API request
 function postRequest(name){
-    var offset = 0;	
-
     if(name){
         var inputName = $("#search_input").val();
         if(inputName == '' || inputName.length < 3){
@@ -22,8 +20,6 @@ function postRequest(name){
         method: 'POST',
         data: {
             requestType: name ? inputName : 'database',
-            per_request: 10,
-            offset: offset
         }, success: function(response){
             if(inputName){
                 var result = JSON.parse(response);
@@ -36,13 +32,12 @@ function postRequest(name){
                 $('#dataModal').modal('show');
                 jQuery('html,body').animate({scrollTop:0},500);
             }
-            else if(response == 'last_row'){
+            else if(response == 'LAST_ROW'){
                 $('#input-data').hide();
                 $('#no-data').show();
                 $("#dataModal").modal('show');
             }else{
                 $('#tbody_data').append(response);
-                offset += 10;
             }
             $('#container-loader').hide();	// hide the loader
         }, complete: function(message){},
