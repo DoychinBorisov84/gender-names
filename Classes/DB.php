@@ -90,7 +90,7 @@ class DB
         
         $sqlSelectFiltered = "SELECT id, firstName, gender, probability, counter FROM $dBSource WHERE person_id > $lastPersonId";
 
-        $result = $this->getConnection()->query($sqlSelectFiltered);
+        $result = $this->getConnection()->query($sqlSelectFiltered, PDO::FETCH_ASSOC);
 
         return $result;
     }
