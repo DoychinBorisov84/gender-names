@@ -1,9 +1,12 @@
 <?php
-require_once __DIR__.'/config.php';
+require_once __DIR__.'/Classes/Config.php';
 require_once __DIR__.'/Classes/DB.php';
 
 // DB Class instance
 $db = new DB;
+
+// Config class instance
+$config = new Config;
 
 // All the filtered DB-records
 $filteredRecords = $db->getFilteredRecords();
@@ -48,11 +51,11 @@ $filteredRecords = $db->getFilteredRecords();
 		<tbody id="tbody_data">
 			<?php foreach($filteredRecords as $value) { ?>
 				<tr>
-					<td><?php echo $value['id']; ?></td>
-					<td><?php echo $value['firstName']; ?></td>		    
-					<td><?php echo $value['gender']; ?></td>	
-					<td><?php echo $value['probability']; ?></td>	
-					<td><?php echo $value['counter']; ?></td>	
+					<td><?php $config->sanitizeOutput($value['id'], 'string') ; ?></td>
+					<td><?php $config->sanitizeOutput($value['firstName'], 'string') ; ?></td>		    
+					<td><?php $config->sanitizeOutput($value['gender'], 'string') ; ?></td>	
+					<td><?php $config->sanitizeOutput($value['probability'], 'string') ; ?></td>	
+					<td><?php $config->sanitizeOutput($value['counter'], 'string') ; ?></td>	
 				</tr>
 			<?php } ?>
 		</tbody>
