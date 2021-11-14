@@ -1,9 +1,12 @@
 <?php
-require_once __DIR__.'/config.php';
+require_once __DIR__.'/Classes/Config.php';
 require_once __DIR__.'/Classes/DB.php';
 
 // DB Class instance
 $db = new DB;
+
+// Config class instance
+$config = new Config;
 
 // All the filtered DB-records
 $filteredRecords = $db->getFilteredRecords();
@@ -19,7 +22,7 @@ $filteredRecords = $db->getFilteredRecords();
 	<!-- Sticky navbar -->
 	<nav class="navbar navbar-light bg-light d-flex flex-row justify-content-center" id="header">
 		<p class="p-2 text-center">
-			The table will fill on each button click with more data. Every click takes a bulk of rows from the DB, split the row data to chunk strings, send those strings for correct name validation in the API used here <a href="https://genderize.io/">Gender API</a>. If the string fills the requirement for a legit name, then it is being saved to our new DB table for filtered names and listed below. The DB table used in our example contains `name` cell, which can consist of 2, 3 or more strings ex "John Doe Smith " or single one like "Nicolas"...
+			The table will fill on each button click with more data. Every click takes a bulk of rows from the DB, split the row data to chunk strings, send those strings for correct name validation in the API used here <a href="https://genderize.io/">Gender API</a>. If the string fills the requirement for a legitimate name, then it is being saved to our new DB table for filtered names and listed below. The DB table used in our example contains `name` cell, which can consist of 2, 3 or more strings ex "John Doe Smith " or single one like "Nicolas"...
 		</p>
 		<div class="col text-center">
 			<button type="button" class="btn btn-primary p-2" id="data_loader" onclick="postRequest(name=false)">Process names from DB source</button>
@@ -48,11 +51,11 @@ $filteredRecords = $db->getFilteredRecords();
 		<tbody id="tbody_data">
 			<?php foreach($filteredRecords as $value) { ?>
 				<tr>
-					<td><?php echo $value['id']; ?></td>
-					<td><?php echo $value['firstName']; ?></td>		    
-					<td><?php echo $value['gender']; ?></td>	
-					<td><?php echo $value['probability']; ?></td>	
-					<td><?php echo $value['counter']; ?></td>	
+					<td><?php $config->sanitizeOutput($value['id'], 'string') ; ?></td>
+					<td><?php $config->sanitizeOutput($value['firstName'], 'string') ; ?></td>		    
+					<td><?php $config->sanitizeOutput($value['gender'], 'string') ; ?></td>	
+					<td><?php $config->sanitizeOutput($value['probability'], 'string') ; ?></td>	
+					<td><?php $config->sanitizeOutput($value['counter'], 'string') ; ?></td>	
 				</tr>
 			<?php } ?>
 		</tbody>
