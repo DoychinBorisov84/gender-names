@@ -1,8 +1,7 @@
 <?php
 
 class Config
-{
-    
+{    
     /**
      * @var array $arr
      * Pretty print array
