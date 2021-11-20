@@ -12,7 +12,7 @@
   
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Determining person's gender based on their names. Loading database data and filtering it via external API provider. Or using a search field into our page. Exporting the loaded results into CSV. Saving the filtered data into a database and listing the data in our homepage.
+Get person's gender based on their names. Loading Database records and filtering them via external API provider. Or using a search field into our page. Exporting the loaded results into CSV. Saving the filtered data into a database and listing the data in our homepage.
 
 [![Product Name Screen Shot][product-screenshot]](https://github.com/DoychinBorisov84/gender-names/images/screenshot.png)
 
@@ -44,19 +44,14 @@ The project needs installed on your machine :
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+Please refer to the about section for now.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
 
-Linked In - [linkedin-url](https://www.linkedin.com/in/doychin-borisov/)
+LinkedIn - [https://www.linkedin.com/in/doychin-borisov/](https://www.linkedin.com/in/doychin-borisov/)
 
 Project Link: [https://github.com/DoychinBorisov84/gender-names](https://github.com/DoychinBorisov84/gender-names)
 
@@ -71,9 +66,7 @@ Project Link: [https://github.com/DoychinBorisov84/gender-names](https://github.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 [contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-
 [linkedin-url]: https://www.linkedin.com/in/doychin-borisov/
 [product-screenshot]: images/screenshot.png
